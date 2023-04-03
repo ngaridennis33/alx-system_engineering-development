@@ -1,0 +1,9 @@
+# SSH client configuration file
+# The SSH client will only use Key Authentication
+# Password based Authentication is disabled 
+
+Host *
+    HostName 100.25.205.50
+    SeverAliveInterval 120
+    IdentityFile ~/.ssh/school
+    PasswordAuthentication no
