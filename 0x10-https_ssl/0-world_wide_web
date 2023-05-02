@@ -1,36 +1,25 @@
-
- 
-
 #!/usr/bin/env bash
-# Usage: ./1-world_wide_web <domain> <subdomain>
-# Display information about subdomains.
+# script to dig subdomain records for the domain specified
+# shellcheck disable=SC2027
+# shellcheck disable=SC2086
 
-# domain_information () {
-#     line=$(dig "$2"."$1" | grep -A1 'ANSWER SECTION:' | tr '\t' '\n' | tail -2 | tr '\n' ' ')
-#     echo "$2 $line" | awk '{print "The subdomain " $1 " is a " $2 " record and points to " $3}'
-# }
+function get_a_records(){
+    if [[ -n "$2" ]]; then
+        response="$(dig "$2.$1" | grep -i -A1 "answer section" | tail -n 1)"
+        destination="$(echo "$response" | awk '{ print $5 }')"
+        record_type="$(echo "$response" | awk '{ print $4 }')"
+        echo  "The subdomain "$2" is a "$record_type" record and points to "$destination""
 
-# if [ "$#" == 1 ]
-# then
-#   domain_information "$1" "www"
-#   domain_information "$1" "lb-01"
-#   domain_information "$1" "web-01"
-#   domain_information "$1" "web-02"
-# elif [ "$#" == 2 ]
-# then
-#   domain_information "$1" "$2"
-# fi
-
- func () {
-    if [ -n "$2" ]
-    then
-	dig "$2.$1" | grep -A1 'ANSWER SECTION:' | paste - - | awk -v sd="$2" '{print "The subdomain " sd " is a " $7 " record and points to " $8}'
     else
-	dig "www.$1" | grep -A1 'ANSWER SECTION:' | paste - - | awk '{print "The subdomain www is a " $7 " record and points to " $8}'
-	dig "lb-01.$1" | grep -A1 'ANSWER SECTION:' | paste - - | awk '{print "The subdomain lb-01 is a " $7 " record and points to " $8}'
-	dig "web-01.$1" | grep -A1 'ANSWER SECTION:' | paste - - | awk '{print "The subdomain web-01 is a " $7 " record and points to " $8}'
-	dig "web-02.$1" | grep -A1 'ANSWER SECTION:' | paste - - | awk '{print "The subdomain web-02 is a " $7 " record and points to " $8}'
-    fi
-}
+        subdomains=(www lb-01 web-01 web-02)
+        for sub_d in "${subdomains[@]}"; do
+            response="$(dig "$sub_d.$1" | grep -i -A1 "answer section" | tail -n 1)"
+            destination="$(echo ""$response"" | awk '{ print $5 }')"
+            record_type="$(echo """$response""" | awk '{ print $4 }')"
+            echo "The subdomain ""$sub_d"" is a ""$record_type"" record and points to ""$destination"""
 
-func "$1" "$2"
+        done
+    fi
+ 
+}
+get_a_records "$1" "$2";
